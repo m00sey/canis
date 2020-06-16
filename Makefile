@@ -2,7 +2,7 @@
 
 CANIS_ROOT=$(abspath .)
 
-all: clean tools wire test build
+all: clean tools wire steward
 
 commit: cover build
 
@@ -72,7 +72,7 @@ urn: run
 run: bin/steward
 	@bin/scoir-agent
 
-test:
+test: clean tools
 	go test ./pkg/...
 
 cover:
