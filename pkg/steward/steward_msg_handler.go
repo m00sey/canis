@@ -28,5 +28,5 @@ func (r *Steward) handleAgentConnection(invitationID string, conn *didexchange.C
 	// if err != nil {
 	// 	log.Printf("error responding to high school connection activation %s: (%+v)\n", hs.HighSchoolID, err)
 	// }
-	log.Printf("Agent %s successfully issued Scoir HS credential\n")
+	log.Printf("Agent %s successfully issued Scoir HS credential\n", agent.DID)
 }

@@ -8,12 +8,12 @@ import (
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/pkg/errors"
-	"github.com/scoir/allez/pkg/steward"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
 	"github.com/scoir/canis/pkg/datastore"
+	"github.com/scoir/canis/pkg/steward/api"
 )
 
 func (r *Steward) RegisterGRPCGateway(mux *runtime.ServeMux, endpoint string, opts ...grpc.DialOption) {

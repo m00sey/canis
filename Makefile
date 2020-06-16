@@ -20,12 +20,13 @@ tools:
 	go get github.com/google/wire/cmd/wire
 	go get github.com/vektra/mockery/.../
 	go get golang.org/x/tools/cmd/cover
+	go get -u github.com/golang/protobuf/protoc-gen-go
 
 build: bin/steward bin/agency bin/router
 build-steward: bin/steward
 
 steward: bin/steward
-bin/steward: wire-steward
+bin/steward: steward-pb wire-steward
 	cd cmd/steward && go build -o $(CANIS_ROOT)/bin/steward
 
 .PHONY: steward-docker agency-docker router-docker
@@ -63,6 +64,12 @@ router-docker: bin/router
 canis-docker: build
 	@echo "Building canis docker image"
 	@docker build -f ./docker/canis/Dockerfile --no-cache -t scoir/canis:latest .
+
+steward-pb: pkg/steward/api/steward_agent.pb.go
+pkg/steward/api/steward_agent.pb.go:pkg/steward/api/steward_agent.proto
+	cd pkg && protoc -I/home/pfeairheller/opt/protoc-3.6.1/include -I . -I steward/api/ steward/api/steward_agent.proto --go_out=plugins=grpc:.
+	cd pkg && protoc -I/home/pfeairheller/opt/protoc-3.6.1/include -I . -I steward/api/ steward/api/steward_agent.proto --grpc-gateway_out=logtostderr=true:.
+	cd pkg && protoc -I/home/pfeairheller/opt/protoc-3.6.1/include -I . -I steward/api/ steward/api/steward_agent.proto --swagger_out=logtostderr=true:.
 
 demo-web:
 	cd demo && npm run build

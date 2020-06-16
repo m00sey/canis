@@ -63,6 +63,52 @@ func (_m *Store) GetAgent(id string) (*datastore.Agent, error) {
 	return r0, r1
 }
 
+// GetAgentByInvitation provides a mock function with given fields: invitationID
+func (_m *Store) GetAgentByInvitation(invitationID string) (*datastore.Agent, error) {
+	ret := _m.Called(invitationID)
+
+	var r0 *datastore.Agent
+	if rf, ok := ret.Get(0).(func(string) *datastore.Agent); ok {
+		r0 = rf(invitationID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*datastore.Agent)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(invitationID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetPublicDID provides a mock function with given fields:
+func (_m *Store) GetPublicDID() (*datastore.DID, error) {
+	ret := _m.Called()
+
+	var r0 *datastore.DID
+	if rf, ok := ret.Get(0).(func() *datastore.DID); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*datastore.DID)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func() error); ok {
+		r1 = rf()
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetSchema provides a mock function with given fields: id
 func (_m *Store) GetSchema(id string) (*datastore.Schema, error) {
 	ret := _m.Called(id)
@@ -107,6 +153,20 @@ func (_m *Store) InsertAgent(s *datastore.Agent) (string, error) {
 	return r0, r1
 }
 
+// InsertDID provides a mock function with given fields: d
+func (_m *Store) InsertDID(d *datastore.DID) error {
+	ret := _m.Called(d)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(*datastore.DID) error); ok {
+		r0 = rf(d)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // InsertSchema provides a mock function with given fields: s
 func (_m *Store) InsertSchema(s *datastore.Schema) (string, error) {
 	ret := _m.Called(s)
@@ -129,15 +189,15 @@ func (_m *Store) InsertSchema(s *datastore.Schema) (string, error) {
 }
 
 // ListAgent provides a mock function with given fields: c
-func (_m *Store) ListAgent(c *datastore.AgentCriteria) ([]datastore.Agent, error) {
+func (_m *Store) ListAgent(c *datastore.AgentCriteria) (*datastore.AgentList, error) {
 	ret := _m.Called(c)
 
-	var r0 []datastore.Agent
-	if rf, ok := ret.Get(0).(func(*datastore.AgentCriteria) []datastore.Agent); ok {
+	var r0 *datastore.AgentList
+	if rf, ok := ret.Get(0).(func(*datastore.AgentCriteria) *datastore.AgentList); ok {
 		r0 = rf(c)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]datastore.Agent)
+			r0 = ret.Get(0).(*datastore.AgentList)
 		}
 	}
 
@@ -151,16 +211,39 @@ func (_m *Store) ListAgent(c *datastore.AgentCriteria) ([]datastore.Agent, error
 	return r0, r1
 }
 
-// ListSchema provides a mock function with given fields: c
-func (_m *Store) ListSchema(c *datastore.SchemaCriteria) ([]datastore.Schema, error) {
+// ListDIDs provides a mock function with given fields: c
+func (_m *Store) ListDIDs(c *datastore.DIDCriteria) (*datastore.DIDList, error) {
 	ret := _m.Called(c)
 
-	var r0 []datastore.Schema
-	if rf, ok := ret.Get(0).(func(*datastore.SchemaCriteria) []datastore.Schema); ok {
+	var r0 *datastore.DIDList
+	if rf, ok := ret.Get(0).(func(*datastore.DIDCriteria) *datastore.DIDList); ok {
 		r0 = rf(c)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]datastore.Schema)
+			r0 = ret.Get(0).(*datastore.DIDList)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*datastore.DIDCriteria) error); ok {
+		r1 = rf(c)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ListSchema provides a mock function with given fields: c
+func (_m *Store) ListSchema(c *datastore.SchemaCriteria) (*datastore.SchemaList, error) {
+	ret := _m.Called(c)
+
+	var r0 *datastore.SchemaList
+	if rf, ok := ret.Get(0).(func(*datastore.SchemaCriteria) *datastore.SchemaList); ok {
+		r0 = rf(c)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*datastore.SchemaList)
 		}
 	}
 
@@ -172,6 +255,20 @@ func (_m *Store) ListSchema(c *datastore.SchemaCriteria) ([]datastore.Schema, er
 	}
 
 	return r0, r1
+}
+
+// SetPublicDID provides a mock function with given fields: DID
+func (_m *Store) SetPublicDID(DID string) error {
+	ret := _m.Called(DID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(DID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
 }
 
 // UpdateAgent provides a mock function with given fields: s

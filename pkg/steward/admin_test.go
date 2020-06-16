@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"github.com/pkg/errors"
-	"github.com/scoir/allez/pkg/steward"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/scoir/canis/pkg/datastore"
+	"github.com/scoir/canis/pkg/steward/api"
 )
 
 func (suite *AdminTestSuite) TestCreateAgent() {
@@ -117,11 +117,12 @@ func (suite *AdminTestSuite) TestGetAgentErr() {
 }
 
 func (suite *AdminTestSuite) TestListAgent() {
-	request := &steward.ListAgentRequest{
-		Id: "123",
-	}
+	request := &steward.ListAgentRequest{}
 
-	suite.Store.On("ListAgent", &datastore.AgentCriteria{ID: "123"}).Return([]datastore.Agent{{ID: "123", Name: "test agent"}}, nil)
+	suite.Store.On("ListAgent", &datastore.AgentCriteria{}).Return(&datastore.AgentList{
+		Count:  1,
+		Agents: []*datastore.Agent{{ID: "123", Name: "test agent"}},
+	}, nil)
 
 	resp, err := target.ListAgent(context.Background(), request)
 	assert.Nil(suite.T(), err)
@@ -129,11 +130,9 @@ func (suite *AdminTestSuite) TestListAgent() {
 }
 
 func (suite *AdminTestSuite) TestListAgentErr() {
-	request := &steward.ListAgentRequest{
-		Id: "123",
-	}
+	request := &steward.ListAgentRequest{}
 
-	suite.Store.On("ListAgent", &datastore.AgentCriteria{ID: "123"}).Return(nil, errors.New("BOOM"))
+	suite.Store.On("ListAgent", &datastore.AgentCriteria{}).Return(nil, errors.New("BOOM"))
 
 	resp, err := target.ListAgent(context.Background(), request)
 	assert.Nil(suite.T(), resp)
@@ -295,11 +294,12 @@ func (suite *AdminTestSuite) TestGetSchemaErr() {
 }
 
 func (suite *AdminTestSuite) TestListSchema() {
-	request := &steward.ListSchemaRequest{
-		Id: "123",
-	}
+	request := &steward.ListSchemaRequest{}
 
-	suite.Store.On("ListSchema", &datastore.SchemaCriteria{ID: "123"}).Return([]datastore.Schema{{ID: "123", Name: "test schema"}}, nil)
+	suite.Store.On("ListSchema", &datastore.SchemaCriteria{}).Return(&datastore.SchemaList{
+		Count:  1,
+		Schema: []*datastore.Schema{{ID: "123", Name: "test schema"}},
+	}, nil)
 
 	resp, err := target.ListSchema(context.Background(), request)
 	assert.Nil(suite.T(), err)
@@ -307,11 +307,9 @@ func (suite *AdminTestSuite) TestListSchema() {
 }
 
 func (suite *AdminTestSuite) TestListSchemaErr() {
-	request := &steward.ListSchemaRequest{
-		Id: "123",
-	}
+	request := &steward.ListSchemaRequest{}
 
-	suite.Store.On("ListSchema", &datastore.SchemaCriteria{ID: "123"}).Return(nil, errors.New("BOOM"))
+	suite.Store.On("ListSchema", &datastore.SchemaCriteria{}).Return(nil, errors.New("BOOM"))
 
 	resp, err := target.ListSchema(context.Background(), request)
 	assert.Nil(suite.T(), resp)
