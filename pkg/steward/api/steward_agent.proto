@@ -1,6 +1,8 @@
 syntax = "proto3";
 package steward;
 
+option go_package = "steward/api";
+
 import "google/api/annotations.proto";
 
 message PublicDIDRequest {

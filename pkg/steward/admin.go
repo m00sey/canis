@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"net/http"
 
 	"github.com/grpc-ecosystem/grpc-gateway/runtime"
 	"github.com/pkg/errors"
@@ -13,11 +14,12 @@ import (
 	"google.golang.org/grpc/status"
 
 	"github.com/scoir/canis/pkg/datastore"
+	"github.com/scoir/canis/pkg/static"
 	"github.com/scoir/canis/pkg/steward/api"
 )
 
 func (r *Steward) RegisterGRPCGateway(mux *runtime.ServeMux, endpoint string, opts ...grpc.DialOption) {
-	err := steward.RegisterAdminHandlerFromEndpoint(context.Background(), mux, endpoint, opts)
+	err := api.RegisterAdminHandlerFromEndpoint(context.Background(), mux, endpoint, opts)
 	if err != nil {
 		log.Println("unable to register admin gateway", err)
 	}
@@ -26,10 +28,14 @@ func (r *Steward) RegisterGRPCGateway(mux *runtime.ServeMux, endpoint string, op
 }
 
 func (r *Steward) RegisterGRPCHandler(server *grpc.Server) {
-	steward.RegisterAdminServer(server, r)
+	api.RegisterAdminServer(server, r)
 }
 
-func (r *Steward) CreateSchema(_ context.Context, req *steward.CreateSchemaRequest) (*steward.CreateSchemaResponse, error) {
+func (r *Steward) APISpec() (http.HandlerFunc, error) {
+	return static.ServeHTTP, nil
+}
+
+func (r *Steward) CreateSchema(_ context.Context, req *api.CreateSchemaRequest) (*api.CreateSchemaResponse, error) {
 	s := &datastore.Schema{
 		ID:      req.Schema.Id,
 		Name:    req.Schema.Name,
@@ -58,12 +64,12 @@ func (r *Steward) CreateSchema(_ context.Context, req *steward.CreateSchemaReque
 		return nil, status.Error(codes.Internal, errors.Wrapf(err, "failed to create schema %s", req.Schema.Id).Error())
 	}
 
-	return &steward.CreateSchemaResponse{
+	return &api.CreateSchemaResponse{
 		Id: id,
 	}, nil
 }
 
-func (r *Steward) ListSchema(_ context.Context, req *steward.ListSchemaRequest) (*steward.ListSchemaResponse, error) {
+func (r *Steward) ListSchema(_ context.Context, req *api.ListSchemaRequest) (*api.ListSchemaResponse, error) {
 	critter := &datastore.SchemaCriteria{
 		Start:    int(req.Start),
 		PageSize: int(req.PageSize),
@@ -75,23 +81,23 @@ func (r *Steward) ListSchema(_ context.Context, req *steward.ListSchemaRequest) 
 		return nil, status.Error(codes.Internal, errors.Wrapf(err, "unable to list schema").Error())
 	}
 
-	out := &steward.ListSchemaResponse{
+	out := &api.ListSchemaResponse{
 		Count:  int64(results.Count),
-		Schema: make([]*steward.Schema, len(results.Schema)),
+		Schema: make([]*api.Schema, len(results.Schema)),
 	}
 
 	for i, schema := range results.Schema {
-		out.Schema[i] = &steward.Schema{
+		out.Schema[i] = &api.Schema{
 			Id:         schema.ID,
 			Name:       schema.Name,
 			Version:    schema.Version,
-			Attributes: make([]*steward.Attribute, len(schema.Attributes)),
+			Attributes: make([]*api.Attribute, len(schema.Attributes)),
 		}
 
 		for x, attribute := range schema.Attributes {
-			out.Schema[i].Attributes[x] = &steward.Attribute{
+			out.Schema[i].Attributes[x] = &api.Attribute{
 				Name: attribute.Name,
-				Type: steward.Attribute_Type(attribute.Type),
+				Type: api.Attribute_Type(attribute.Type),
 			}
 		}
 	}
@@ -99,41 +105,41 @@ func (r *Steward) ListSchema(_ context.Context, req *steward.ListSchemaRequest) 
 	return out, nil
 }
 
-func (r *Steward) GetSchema(_ context.Context, req *steward.GetSchemaRequest) (*steward.GetSchemaResponse, error) {
+func (r *Steward) GetSchema(_ context.Context, req *api.GetSchemaRequest) (*api.GetSchemaResponse, error) {
 	schema, err := r.store.GetSchema(req.Id)
 	if err != nil {
 		return nil, status.Error(codes.Internal, errors.Wrapf(err, "unable to get schema").Error())
 	}
 
-	out := &steward.GetSchemaResponse{}
+	out := &api.GetSchemaResponse{}
 
-	out.Schema = &steward.Schema{
+	out.Schema = &api.Schema{
 		Id:         schema.ID,
 		Name:       schema.Name,
 		Version:    schema.Version,
-		Attributes: make([]*steward.Attribute, len(schema.Attributes)),
+		Attributes: make([]*api.Attribute, len(schema.Attributes)),
 	}
 
 	for x, attribute := range schema.Attributes {
-		out.Schema.Attributes[x] = &steward.Attribute{
+		out.Schema.Attributes[x] = &api.Attribute{
 			Name: attribute.Name,
-			Type: steward.Attribute_Type(attribute.Type),
+			Type: api.Attribute_Type(attribute.Type),
 		}
 	}
 
 	return out, nil
 }
 
-func (r *Steward) DeleteSchema(_ context.Context, req *steward.DeleteSchemaRequest) (*steward.DeleteSchemaResponse, error) {
+func (r *Steward) DeleteSchema(_ context.Context, req *api.DeleteSchemaRequest) (*api.DeleteSchemaResponse, error) {
 	err := r.store.DeleteSchema(req.Id)
 	if err != nil {
 		return nil, status.Error(codes.Internal, errors.Wrapf(err, "failed to delete schema %s", req.Id).Error())
 	}
 
-	return &steward.DeleteSchemaResponse{}, nil
+	return &api.DeleteSchemaResponse{}, nil
 }
 
-func (r *Steward) UpdateSchema(_ context.Context, req *steward.UpdateSchemaRequest) (*steward.UpdateSchemaResponse, error) {
+func (r *Steward) UpdateSchema(_ context.Context, req *api.UpdateSchemaRequest) (*api.UpdateSchemaResponse, error) {
 	if req.Schema.Id == "" || req.Schema.Name == "" {
 		return nil, status.Error(codes.InvalidArgument, "name and id are required fields")
 	}
@@ -158,10 +164,10 @@ func (r *Steward) UpdateSchema(_ context.Context, req *steward.UpdateSchemaReque
 		return nil, status.Error(codes.Internal, errors.Wrapf(err, "failed to create schema %s", req.Schema.Id).Error())
 	}
 
-	return &steward.UpdateSchemaResponse{}, nil
+	return &api.UpdateSchemaResponse{}, nil
 }
 
-func (r *Steward) CreateAgent(_ context.Context, req *steward.CreateAgentRequest) (*steward.CreateAgentResponse, error) {
+func (r *Steward) CreateAgent(_ context.Context, req *api.CreateAgentRequest) (*api.CreateAgentResponse, error) {
 	a := &datastore.Agent{
 		ID:                  req.Agent.Id,
 		Name:                req.Agent.Name,
@@ -182,12 +188,12 @@ func (r *Steward) CreateAgent(_ context.Context, req *steward.CreateAgentRequest
 		return nil, status.Error(codes.Internal, errors.Wrapf(err, "failed to create agent %s", req.Agent.Id).Error())
 	}
 
-	return &steward.CreateAgentResponse{
+	return &api.CreateAgentResponse{
 		Id: id,
 	}, nil
 }
 
-func (r *Steward) ListAgent(_ context.Context, req *steward.ListAgentRequest) (*steward.ListAgentResponse, error) {
+func (r *Steward) ListAgent(_ context.Context, req *api.ListAgentRequest) (*api.ListAgentResponse, error) {
 	critter := &datastore.AgentCriteria{
 		Start:    int(req.Start),
 		PageSize: int(req.PageSize),
@@ -199,13 +205,13 @@ func (r *Steward) ListAgent(_ context.Context, req *steward.ListAgentRequest) (*
 		return nil, status.Error(codes.Internal, errors.Wrapf(err, "unable to list agent").Error())
 	}
 
-	out := &steward.ListAgentResponse{
+	out := &api.ListAgentResponse{
 		Count:  int64(results.Count),
-		Agents: make([]*steward.Agent, len(results.Agents)),
+		Agents: make([]*api.Agent, len(results.Agents)),
 	}
 
 	for i, Agent := range results.Agents {
-		out.Agents[i] = &steward.Agent{
+		out.Agents[i] = &api.Agent{
 			Id:                  Agent.ID,
 			Name:                Agent.Name,
 			AssignedSchemaId:    "",
@@ -216,15 +222,15 @@ func (r *Steward) ListAgent(_ context.Context, req *steward.ListAgentRequest) (*
 	return out, nil
 }
 
-func (r *Steward) GetAgent(_ context.Context, req *steward.GetAgentRequest) (*steward.GetAgentResponse, error) {
+func (r *Steward) GetAgent(_ context.Context, req *api.GetAgentRequest) (*api.GetAgentResponse, error) {
 	Agent, err := r.store.GetAgent(req.Id)
 	if err != nil {
 		return nil, status.Error(codes.Internal, errors.Wrapf(err, "unable to get agent").Error())
 	}
 
-	out := &steward.GetAgentResponse{}
+	out := &api.GetAgentResponse{}
 
-	out.Agent = &steward.Agent{
+	out.Agent = &api.Agent{
 		Id:                  Agent.ID,
 		Name:                Agent.Name,
 		AssignedSchemaId:    Agent.AssignedSchemaId,
@@ -234,16 +240,16 @@ func (r *Steward) GetAgent(_ context.Context, req *steward.GetAgentRequest) (*st
 	return out, nil
 }
 
-func (r *Steward) DeleteAgent(_ context.Context, req *steward.DeleteAgentRequest) (*steward.DeleteAgentResponse, error) {
+func (r *Steward) DeleteAgent(_ context.Context, req *api.DeleteAgentRequest) (*api.DeleteAgentResponse, error) {
 	err := r.store.DeleteAgent(req.Id)
 	if err != nil {
 		return nil, status.Error(codes.Internal, errors.Wrapf(err, "failed to delete agent %s", req.Id).Error())
 	}
 
-	return &steward.DeleteAgentResponse{}, nil
+	return &api.DeleteAgentResponse{}, nil
 }
 
-func (r *Steward) UpdateAgent(_ context.Context, req *steward.UpdateAgentRequest) (*steward.UpdateAgentResponse, error) {
+func (r *Steward) UpdateAgent(_ context.Context, req *api.UpdateAgentRequest) (*api.UpdateAgentResponse, error) {
 	if req.Agent.Id == "" || req.Agent.Name == "" {
 		return nil, status.Error(codes.InvalidArgument, "name and id are required fields")
 	}
@@ -262,18 +268,18 @@ func (r *Steward) UpdateAgent(_ context.Context, req *steward.UpdateAgentRequest
 		return nil, status.Error(codes.Internal, errors.Wrapf(err, "failed to create agent %s", req.Agent.Id).Error())
 	}
 
-	return &steward.UpdateAgentResponse{}, nil
+	return &api.UpdateAgentResponse{}, nil
 }
 
-func (r *Steward) LaunchAgent(_ context.Context, _ *steward.LaunchAgentRequest) (*steward.LaunchAgentResponse, error) {
+func (r *Steward) LaunchAgent(_ context.Context, _ *api.LaunchAgentRequest) (*api.LaunchAgentResponse, error) {
 	panic("implement me")
 }
 
-func (r *Steward) ShutdownAgent(_ context.Context, _ *steward.ShutdownAgentRequest) (*steward.ShutdownAgentResponse, error) {
+func (r *Steward) ShutdownAgent(_ context.Context, _ *api.ShutdownAgentRequest) (*api.ShutdownAgentResponse, error) {
 	panic("implement me")
 }
 
-func (r *Steward) RegisterPublicDID(ctx context.Context, req *steward.PublicDIDRequest) (*steward.PublicDIDResponse, error) {
+func (r *Steward) RegisterPublicDID(ctx context.Context, req *api.PublicDIDRequest) (*api.PublicDIDResponse, error) {
 	log.Printf("Registering %s:%s in ledger for agent %s\n", req.Did, req.Verkey, req.AgentId)
 
 	//TODO, this should be done with VDR, not the ledgerBrowser
@@ -282,11 +288,11 @@ func (r *Steward) RegisterPublicDID(ctx context.Context, req *steward.PublicDIDR
 	//	return nil, status.Errorf(codes.Internal, "unable to register college with ledger: %v", err)
 	//}
 
-	return &steward.PublicDIDResponse{}, nil
+	return &api.PublicDIDResponse{}, nil
 }
 
 func (r *Steward) GetInvitationForAgent(ctx context.Context,
-	req *steward.AgentInvitiationRequest) (*steward.AgentInivitationResponse, error) {
+	req *api.AgentInvitiationRequest) (*api.AgentInivitationResponse, error) {
 
 	agent, err := r.store.GetAgent(req.AgentId)
 	if err != nil {
@@ -304,5 +310,5 @@ func (r *Steward) GetInvitationForAgent(ctx context.Context,
 	// }
 
 	d, _ := json.Marshal(invite)
-	return &steward.AgentInivitationResponse{Body: string(d)}, nil
+	return &api.AgentInivitationResponse{Body: string(d)}, nil
 }

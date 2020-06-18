@@ -2,11 +2,11 @@
 // source: steward/api/steward_agent.proto
 
 /*
-Package steward is a reverse proxy.
+Package api is a reverse proxy.
 
 It translates gRPC into RESTful JSON APIs.
 */
-package steward
+package api
 
 import (
 	"context"

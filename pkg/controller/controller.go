@@ -17,6 +17,7 @@ type AgentController interface {
 	RegisterGRPCHandler(server *grpc.Server)
 	GetServerOpts() []grpc.ServerOption
 	RegisterGRPCGateway(mux *runtime.ServeMux, endpoint string, opts ...grpc.DialOption)
+	APISpec() (http.HandlerFunc, error)
 }
 
 type Runner struct {
@@ -63,6 +64,15 @@ func (r *Runner) Launch() error {
 		}
 	}()
 
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err := r.launchSpec()
+		if err != nil {
+			log.Println("webhooks server exited with error", err)
+		}
+	}()
+
 	wg.Wait()
 	return nil
 }
@@ -91,6 +101,19 @@ func (r *Runner) launchWebBridge() error {
 	return http.ListenAndServe(u, mux)
 }
 
+func (r *Runner) launchSpec() error {
+
+	fs := http.FileServer(http.Dir("./static/swaggerui"))
+
+	var mux = http.NewServeMux()
+	specFunc, err := r.ac.APISpec()
+	if err == nil {
+		mux.Handle("/spec/", http.StripPrefix("/spec/", specFunc))
+	}
+	mux.Handle("/swaggerui/", http.StripPrefix("/swaggerui/", fs))
+	return http.ListenAndServe("0.0.0.0:7779", mux)
+}
+
 func CorsHandler() func(h http.Handler) http.Handler {
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"*"},
@@ -102,6 +125,7 @@ func CorsHandler() func(h http.Handler) http.Handler {
 	})
 	return c.Handler
 }
+
 func Logger(h http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 

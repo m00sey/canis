@@ -22,6 +22,9 @@ tools:
 	go get golang.org/x/tools/cmd/cover
 	go get -u github.com/golang/protobuf/protoc-gen-go
 
+files/files.go: steward-pb pkg/steward/api/spec/steward_agent.swagger.json
+	staticfiles -o pkg/static/steward_agent_swagger.go --package static pkg/steward/api/spec
+
 build: bin/steward bin/agency bin/router
 build-steward: bin/steward
 
@@ -70,7 +73,7 @@ pkg/steward/api/steward_agent.pb.go:pkg/steward/api/steward_agent.proto
 	cd pkg && protoc -I/home/pfeairheller/opt/protoc-3.6.1/include -I . -I steward/api/ steward/api/steward_agent.proto --go_out=plugins=grpc:.
 	cd pkg && protoc -I/home/pfeairheller/opt/protoc-3.6.1/include -I . -I steward/api/ steward/api/steward_agent.proto --grpc-gateway_out=logtostderr=true:.
 	cd pkg && protoc -I/home/pfeairheller/opt/protoc-3.6.1/include -I . -I steward/api/ steward/api/steward_agent.proto --swagger_out=logtostderr=true:.
-
+	mv pkg/steward/api/steward_agent.swagger.json pkg/steward/api/spec
 demo-web:
 	cd demo && npm run build
 

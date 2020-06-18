@@ -4,15 +4,15 @@ import (
 	"github.com/pkg/errors"
 	"google.golang.org/grpc"
 
-	"github.com/scoir/canis/pkg/steward/api"
+	api "github.com/scoir/canis/pkg/steward/api"
 )
 
-func (r *Config) GetStewardClient() (steward.AdminClient, error) {
+func (r *Config) GetStewardClient() (api.AdminClient, error) {
 	cc, err := grpc.Dial(r.Steward.Address(), grpc.WithInsecure())
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to dial grpc for steward client")
 	}
-	cl := steward.NewAdminClient(cc)
+	cl := api.NewAdminClient(cc)
 	return cl, nil
 }
 
