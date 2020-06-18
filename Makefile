@@ -22,14 +22,15 @@ tools:
 	go get golang.org/x/tools/cmd/cover
 	go get -u github.com/golang/protobuf/protoc-gen-go
 
-files/files.go: steward-pb pkg/steward/api/spec/steward_agent.swagger.json
+swagger_pack: pkg/static/steward_agent_swagger.go
+pkg/static/steward_agent_swagger.go: steward-pb pkg/steward/api/spec/steward_agent.swagger.json
 	staticfiles -o pkg/static/steward_agent_swagger.go --package static pkg/steward/api/spec
 
 build: bin/steward bin/agency bin/router
 build-steward: bin/steward
 
 steward: bin/steward
-bin/steward: steward-pb wire-steward
+bin/steward: steward-pb swagger_pack wire-steward
 	cd cmd/steward && go build -o $(CANIS_ROOT)/bin/steward
 
 .PHONY: steward-docker agency-docker router-docker

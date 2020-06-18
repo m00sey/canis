@@ -64,15 +64,6 @@ func (r *Runner) Launch() error {
 		}
 	}()
 
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		err := r.launchSpec()
-		if err != nil {
-			log.Println("webhooks server exited with error", err)
-		}
-	}()
-
 	wg.Wait()
 	return nil
 }
@@ -91,17 +82,11 @@ func (r *Runner) launchGRPC() error {
 }
 
 func (r *Runner) launchWebBridge() error {
-	mux := runtime.NewServeMux()
+	rmux := runtime.NewServeMux()
 	endpoint := fmt.Sprintf("%s:%d", r.grpcHost, r.grpcPort)
 	opts := []grpc.DialOption{grpc.WithInsecure()}
 
-	r.ac.RegisterGRPCGateway(mux, endpoint, opts...)
-	u := fmt.Sprintf("%s:%d", r.grpcBridgeHost, r.grpcBridgePort)
-	log.Printf("grpc web gateway listening on %s\n", u)
-	return http.ListenAndServe(u, mux)
-}
-
-func (r *Runner) launchSpec() error {
+	r.ac.RegisterGRPCGateway(rmux, endpoint, opts...)
 
 	fs := http.FileServer(http.Dir("./static/swaggerui"))
 
@@ -111,7 +96,11 @@ func (r *Runner) launchSpec() error {
 		mux.Handle("/spec/", http.StripPrefix("/spec/", specFunc))
 	}
 	mux.Handle("/swaggerui/", http.StripPrefix("/swaggerui/", fs))
-	return http.ListenAndServe("0.0.0.0:7779", mux)
+	mux.Handle("/", rmux)
+
+	u := fmt.Sprintf("%s:%d", r.grpcBridgeHost, r.grpcBridgePort)
+	log.Printf("grpc web gateway listening on %s\n", u)
+	return http.ListenAndServe(u, mux)
 }
 
 func CorsHandler() func(h http.Handler) http.Handler {

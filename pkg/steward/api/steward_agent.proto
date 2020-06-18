@@ -1,9 +1,18 @@
 syntax = "proto3";
 package steward;
 
+import "google/api/annotations.proto";
+import "protoc-gen-swagger/options/annotations.proto";
+
 option go_package = "steward/api";
 
-import "google/api/annotations.proto";
+option (grpc.gateway.protoc_gen_swagger.options.openapiv2_swagger) = {
+	info: {
+		title: "Canis Admin API";
+        version:"0.0.1"
+    }
+};
+
 
 message PublicDIDRequest {
     string agent_id = 1;
@@ -64,12 +73,14 @@ message GetSchemaResponse {
 message DeleteSchemaRequest {
     string id = 1;
 }
-message DeleteSchemaResponse {}
+message DeleteSchemaResponse {
+}
 
 message UpdateSchemaRequest {
     Schema schema = 1;
 }
-message UpdateSchemaResponse {}
+message UpdateSchemaResponse {
+}
 
 message Agent {
     string id = 1;
@@ -105,18 +116,21 @@ message GetAgentResponse {
 message DeleteAgentRequest {
     string id = 1;
 }
-message DeleteAgentResponse {}
+message DeleteAgentResponse {
+}
 
 message UpdateAgentRequest {
     Agent agent = 1;
 }
-message UpdateAgentResponse {}
+message UpdateAgentResponse {
+}
 
 
 message LaunchAgentRequest {
     string id = 1;
 }
-message LaunchAgentResponse {}
+message LaunchAgentResponse {
+}
 
 message ShutdownAgentRequest {
     string id = 1;
@@ -135,74 +149,74 @@ message AgentInivitationResponse {
 
 service Admin {
     rpc CreateSchema (CreateSchemaRequest) returns (CreateSchemaResponse) {
-        option(google.api.http) = {
+        option (google.api.http) = {
             post: "/schema"
         };
     }
-    rpc ListSchema(ListSchemaRequest) returns (ListSchemaResponse) {
-        option(google.api.http) = {
+    rpc ListSchema (ListSchemaRequest) returns (ListSchemaResponse) {
+        option (google.api.http) = {
             get: "/schema"
         };
     }
-    rpc GetSchema(GetSchemaRequest) returns (GetSchemaResponse) {
-        option(google.api.http) = {
+    rpc GetSchema (GetSchemaRequest) returns (GetSchemaResponse) {
+        option (google.api.http) = {
             get: "/schema/{id}"
         };
     }
-    rpc DeleteSchema(DeleteSchemaRequest) returns (DeleteSchemaResponse) {
-        option(google.api.http) = {
+    rpc DeleteSchema (DeleteSchemaRequest) returns (DeleteSchemaResponse) {
+        option (google.api.http) = {
             delete: "/schema/{id}"
         };
     }
-    rpc UpdateSchema(UpdateSchemaRequest) returns (UpdateSchemaResponse) {
-        option(google.api.http) = {
+    rpc UpdateSchema (UpdateSchemaRequest) returns (UpdateSchemaResponse) {
+        option (google.api.http) = {
             post: "/schema/{schema.id}"
         };
     }
 
-    rpc CreateAgent(CreateAgentRequest) returns (CreateAgentResponse) {
-        option(google.api.http) = {
+    rpc CreateAgent (CreateAgentRequest) returns (CreateAgentResponse) {
+        option (google.api.http) = {
             post: "/agents"
         };
     }
-    rpc ListAgent(ListAgentRequest) returns (ListAgentResponse) {
-        option(google.api.http) = {
+    rpc ListAgent (ListAgentRequest) returns (ListAgentResponse) {
+        option (google.api.http) = {
             get: "/agents"
         };
     }
-    rpc GetAgent(GetAgentRequest) returns (GetAgentResponse) {
-        option(google.api.http) = {
+    rpc GetAgent (GetAgentRequest) returns (GetAgentResponse) {
+        option (google.api.http) = {
             get: "/agents/{id}"
         };
     }
-    rpc DeleteAgent(DeleteAgentRequest) returns (DeleteAgentResponse) {
-        option(google.api.http) = {
+    rpc DeleteAgent (DeleteAgentRequest) returns (DeleteAgentResponse) {
+        option (google.api.http) = {
             delete: "/agents/{id}"
         };
     }
-    rpc UpdateAgent(UpdateAgentRequest) returns (UpdateAgentResponse) {
-        option(google.api.http) = {
+    rpc UpdateAgent (UpdateAgentRequest) returns (UpdateAgentResponse) {
+        option (google.api.http) = {
             post: "/agents/{agent.id}"
         };
 
     }
-    rpc LaunchAgent(LaunchAgentRequest) returns (LaunchAgentResponse) {
-        option(google.api.http) = {
+    rpc LaunchAgent (LaunchAgentRequest) returns (LaunchAgentResponse) {
+        option (google.api.http) = {
             post: "/agents/{id}/launch"
         };
     }
-    rpc ShutdownAgent(ShutdownAgentRequest) returns (ShutdownAgentResponse) {
-        option(google.api.http) = {
+    rpc ShutdownAgent (ShutdownAgentRequest) returns (ShutdownAgentResponse) {
+        option (google.api.http) = {
             post: "/agents/{id}/shutdown"
         };
     }
     rpc RegisterPublicDID (PublicDIDRequest) returns (PublicDIDResponse) {
-        option(google.api.http) = {
+        option (google.api.http) = {
             post: "/agents/{agent_id}/register"
         };
     }
     rpc GetInvitationForAgent (AgentInvitiationRequest) returns (AgentInivitationResponse) {
-        option(google.api.http) = {
+        option (google.api.http) = {
             get: "/agents/{agent_id}/invitation"
         };
     }
