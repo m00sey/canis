@@ -11,8 +11,8 @@ import (
 )
 
 func (suite *AdminTestSuite) TestCreateAgent() {
-	request := &steward.CreateAgentRequest{
-		Agent: &steward.Agent{
+	request := &api.CreateAgentRequest{
+		Agent: &api.Agent{
 			Id:                  "123",
 			Name:                "Test Agent",
 			AssignedSchemaId:    "",
@@ -36,8 +36,8 @@ func (suite *AdminTestSuite) TestCreateAgent() {
 }
 
 func (suite *AdminTestSuite) TestCreateAgentFails() {
-	request := &steward.CreateAgentRequest{
-		Agent: &steward.Agent{
+	request := &api.CreateAgentRequest{
+		Agent: &api.Agent{
 			Id:                  "123",
 			Name:                "Test Agent",
 			AssignedSchemaId:    "",
@@ -61,8 +61,8 @@ func (suite *AdminTestSuite) TestCreateAgentFails() {
 }
 
 func (suite *AdminTestSuite) TestCreateAgentMissingRequiredField() {
-	request := &steward.CreateAgentRequest{
-		Agent: &steward.Agent{
+	request := &api.CreateAgentRequest{
+		Agent: &api.Agent{
 			Id:                  "",
 			Name:                "Test Agent",
 			AssignedSchemaId:    "",
@@ -76,8 +76,8 @@ func (suite *AdminTestSuite) TestCreateAgentMissingRequiredField() {
 }
 
 func (suite *AdminTestSuite) TestCreateAgentAlreadyExists() {
-	request := &steward.CreateAgentRequest{
-		Agent: &steward.Agent{
+	request := &api.CreateAgentRequest{
+		Agent: &api.Agent{
 			Id:                  "123",
 			Name:                "Test Agent",
 			AssignedSchemaId:    "",
@@ -93,7 +93,7 @@ func (suite *AdminTestSuite) TestCreateAgentAlreadyExists() {
 }
 
 func (suite *AdminTestSuite) TestGetAgent() {
-	request := &steward.GetAgentRequest{
+	request := &api.GetAgentRequest{
 		Id: "123",
 	}
 
@@ -105,7 +105,7 @@ func (suite *AdminTestSuite) TestGetAgent() {
 }
 
 func (suite *AdminTestSuite) TestGetAgentErr() {
-	request := &steward.GetAgentRequest{
+	request := &api.GetAgentRequest{
 		Id: "123",
 	}
 
@@ -117,7 +117,7 @@ func (suite *AdminTestSuite) TestGetAgentErr() {
 }
 
 func (suite *AdminTestSuite) TestListAgent() {
-	request := &steward.ListAgentRequest{}
+	request := &api.ListAgentRequest{}
 
 	suite.Store.On("ListAgent", &datastore.AgentCriteria{}).Return(&datastore.AgentList{
 		Count:  1,
@@ -130,7 +130,7 @@ func (suite *AdminTestSuite) TestListAgent() {
 }
 
 func (suite *AdminTestSuite) TestListAgentErr() {
-	request := &steward.ListAgentRequest{}
+	request := &api.ListAgentRequest{}
 
 	suite.Store.On("ListAgent", &datastore.AgentCriteria{}).Return(nil, errors.New("BOOM"))
 
@@ -140,7 +140,7 @@ func (suite *AdminTestSuite) TestListAgentErr() {
 }
 
 func (suite *AdminTestSuite) TestDeleteAgent() {
-	request := &steward.DeleteAgentRequest{
+	request := &api.DeleteAgentRequest{
 		Id: "123",
 	}
 
@@ -152,7 +152,7 @@ func (suite *AdminTestSuite) TestDeleteAgent() {
 }
 
 func (suite *AdminTestSuite) TestDeleteAgentErr() {
-	request := &steward.DeleteAgentRequest{
+	request := &api.DeleteAgentRequest{
 		Id: "123",
 	}
 
@@ -164,8 +164,8 @@ func (suite *AdminTestSuite) TestDeleteAgentErr() {
 }
 
 func (suite *AdminTestSuite) TestUpdateAgent() {
-	request := &steward.UpdateAgentRequest{
-		Agent: &steward.Agent{
+	request := &api.UpdateAgentRequest{
+		Agent: &api.Agent{
 			Id:                  "123",
 			Name:                "Test Agent",
 			AssignedSchemaId:    "",
@@ -189,14 +189,14 @@ func (suite *AdminTestSuite) TestUpdateAgent() {
 }
 
 func (suite *AdminTestSuite) TestCreateSchema() {
-	request := &steward.CreateSchemaRequest{
-		Schema: &steward.Schema{
+	request := &api.CreateSchemaRequest{
+		Schema: &api.Schema{
 			Id:      "123",
 			Name:    "Test Schema",
 			Version: "0.0.1",
-			Attributes: []*steward.Attribute{{
+			Attributes: []*api.Attribute{{
 				Name: "City",
-				Type: steward.Attribute_STRING,
+				Type: api.Attribute_STRING,
 			}},
 		},
 	}
@@ -207,7 +207,7 @@ func (suite *AdminTestSuite) TestCreateSchema() {
 		Version: "0.0.1",
 		Attributes: []*datastore.Attribute{{
 			Name: "City",
-			Type: int32(steward.Attribute_STRING),
+			Type: int32(api.Attribute_STRING),
 		}},
 	}
 
@@ -220,8 +220,8 @@ func (suite *AdminTestSuite) TestCreateSchema() {
 }
 
 func (suite *AdminTestSuite) TestCreateSchemaFails() {
-	request := &steward.CreateSchemaRequest{
-		Schema: &steward.Schema{
+	request := &api.CreateSchemaRequest{
+		Schema: &api.Schema{
 			Id:   "123",
 			Name: "Test Schema",
 		},
@@ -242,8 +242,8 @@ func (suite *AdminTestSuite) TestCreateSchemaFails() {
 }
 
 func (suite *AdminTestSuite) TestCreateSchemaMissingRequiredField() {
-	request := &steward.CreateSchemaRequest{
-		Schema: &steward.Schema{
+	request := &api.CreateSchemaRequest{
+		Schema: &api.Schema{
 			Id:   "",
 			Name: "Test Schema",
 		},
@@ -255,8 +255,8 @@ func (suite *AdminTestSuite) TestCreateSchemaMissingRequiredField() {
 }
 
 func (suite *AdminTestSuite) TestCreateSchemaAlreadyExists() {
-	request := &steward.CreateSchemaRequest{
-		Schema: &steward.Schema{
+	request := &api.CreateSchemaRequest{
+		Schema: &api.Schema{
 			Id:   "123",
 			Name: "Test Schema",
 		},
@@ -270,7 +270,7 @@ func (suite *AdminTestSuite) TestCreateSchemaAlreadyExists() {
 }
 
 func (suite *AdminTestSuite) TestGetSchema() {
-	request := &steward.GetSchemaRequest{
+	request := &api.GetSchemaRequest{
 		Id: "123",
 	}
 
@@ -282,7 +282,7 @@ func (suite *AdminTestSuite) TestGetSchema() {
 }
 
 func (suite *AdminTestSuite) TestGetSchemaErr() {
-	request := &steward.GetSchemaRequest{
+	request := &api.GetSchemaRequest{
 		Id: "123",
 	}
 
@@ -294,7 +294,7 @@ func (suite *AdminTestSuite) TestGetSchemaErr() {
 }
 
 func (suite *AdminTestSuite) TestListSchema() {
-	request := &steward.ListSchemaRequest{}
+	request := &api.ListSchemaRequest{}
 
 	suite.Store.On("ListSchema", &datastore.SchemaCriteria{}).Return(&datastore.SchemaList{
 		Count:  1,
@@ -307,7 +307,7 @@ func (suite *AdminTestSuite) TestListSchema() {
 }
 
 func (suite *AdminTestSuite) TestListSchemaErr() {
-	request := &steward.ListSchemaRequest{}
+	request := &api.ListSchemaRequest{}
 
 	suite.Store.On("ListSchema", &datastore.SchemaCriteria{}).Return(nil, errors.New("BOOM"))
 
@@ -317,7 +317,7 @@ func (suite *AdminTestSuite) TestListSchemaErr() {
 }
 
 func (suite *AdminTestSuite) TestDeleteSchema() {
-	request := &steward.DeleteSchemaRequest{
+	request := &api.DeleteSchemaRequest{
 		Id: "123",
 	}
 
@@ -329,7 +329,7 @@ func (suite *AdminTestSuite) TestDeleteSchema() {
 }
 
 func (suite *AdminTestSuite) TestDeleteSchemaErr() {
-	request := &steward.DeleteSchemaRequest{
+	request := &api.DeleteSchemaRequest{
 		Id: "123",
 	}
 
@@ -341,14 +341,14 @@ func (suite *AdminTestSuite) TestDeleteSchemaErr() {
 }
 
 func (suite *AdminTestSuite) TestUpdateSchema() {
-	request := &steward.UpdateSchemaRequest{
-		Schema: &steward.Schema{
+	request := &api.UpdateSchemaRequest{
+		Schema: &api.Schema{
 			Id:      "123",
 			Name:    "Test Schema",
 			Version: "0.0.1",
-			Attributes: []*steward.Attribute{{
+			Attributes: []*api.Attribute{{
 				Name: "City",
-				Type: steward.Attribute_STRING,
+				Type: api.Attribute_STRING,
 			}},
 		},
 	}
@@ -359,7 +359,7 @@ func (suite *AdminTestSuite) TestUpdateSchema() {
 		Version: "0.0.1",
 		Attributes: []*datastore.Attribute{{
 			Name: "City",
-			Type: int32(steward.Attribute_STRING),
+			Type: int32(api.Attribute_STRING),
 		}},
 	}
 
