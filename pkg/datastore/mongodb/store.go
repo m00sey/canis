@@ -100,7 +100,7 @@ func (r *Store) ListSchema(c *datastore.SchemaCriteria) (*datastore.SchemaList, 
 	bc := bson.M{}
 	if c.Name != "" {
 		p := fmt.Sprintf(".*%s.*", c.Name)
-		bc["Name"] = primitive.Regex{Pattern: p, Options: ""}
+		bc["name"] = primitive.Regex{Pattern: p, Options: ""}
 	}
 
 	opts := &options.FindOptions{}
@@ -130,7 +130,7 @@ func (r *Store) ListSchema(c *datastore.SchemaCriteria) (*datastore.SchemaList, 
 func (r *Store) GetSchema(id string) (*datastore.Schema, error) {
 	schema := &datastore.Schema{}
 
-	err := r.database.Collection(SchemaC).FindOne(context.Background(), bson.M{"ID": id}).Decode(schema)
+	err := r.database.Collection(SchemaC).FindOne(context.Background(), bson.M{"id": id}).Decode(schema)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to load schema")
 	}
@@ -139,7 +139,7 @@ func (r *Store) GetSchema(id string) (*datastore.Schema, error) {
 }
 
 func (r *Store) DeleteSchema(id string) error {
-	_, err := r.database.Collection(SchemaC).DeleteOne(context.Background(), bson.M{"ID": id})
+	_, err := r.database.Collection(SchemaC).DeleteOne(context.Background(), bson.M{"id": id})
 	if err != nil {
 		return errors.Wrap(err, "unable to delete schema")
 	}
@@ -148,7 +148,7 @@ func (r *Store) DeleteSchema(id string) error {
 }
 
 func (r *Store) UpdateSchema(s *datastore.Schema) error {
-	_, err := r.database.Collection(SchemaC).UpdateOne(context.Background(), bson.M{"ID": s.ID}, bson.M{"$set": s})
+	_, err := r.database.Collection(SchemaC).UpdateOne(context.Background(), bson.M{"id": s.ID}, bson.M{"$set": s})
 	if err != nil {
 		return errors.Wrap(err, "unable to update schema")
 	}
@@ -169,7 +169,7 @@ func (r *Store) ListAgent(c *datastore.AgentCriteria) (*datastore.AgentList, err
 	bc := bson.M{}
 	if c.Name != "" {
 		p := fmt.Sprintf(".*%s.*", c.Name)
-		bc["Name"] = primitive.Regex{Pattern: p, Options: ""}
+		bc["name"] = primitive.Regex{Pattern: p, Options: ""}
 	}
 
 	opts := &options.FindOptions{}
@@ -199,7 +199,7 @@ func (r *Store) ListAgent(c *datastore.AgentCriteria) (*datastore.AgentList, err
 func (r *Store) GetAgent(id string) (*datastore.Agent, error) {
 	agent := &datastore.Agent{}
 
-	err := r.database.Collection(AgentC).FindOne(context.Background(), bson.M{"ID": id}).Decode(agent)
+	err := r.database.Collection(AgentC).FindOne(context.Background(), bson.M{"id": id}).Decode(agent)
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to load agent")
 	}
@@ -221,7 +221,7 @@ func (r *Store) GetAgentByInvitation(invitationID string) (*datastore.Agent, err
 }
 
 func (r *Store) DeleteAgent(id string) error {
-	_, err := r.database.Collection(AgentC).DeleteOne(context.Background(), bson.M{"ID": id})
+	_, err := r.database.Collection(AgentC).DeleteOne(context.Background(), bson.M{"id": id})
 	if err != nil {
 		return errors.Wrap(err, "unable to delete agent")
 	}
@@ -230,7 +230,7 @@ func (r *Store) DeleteAgent(id string) error {
 }
 
 func (r *Store) UpdateAgent(a *datastore.Agent) error {
-	_, err := r.database.Collection(AgentC).UpdateOne(context.Background(), bson.M{"ID": a.ID}, bson.M{"$set": a})
+	_, err := r.database.Collection(AgentC).UpdateOne(context.Background(), bson.M{"id": a.ID}, bson.M{"$set": a})
 	if err != nil {
 		return errors.Wrap(err, "unable to update agent")
 	}

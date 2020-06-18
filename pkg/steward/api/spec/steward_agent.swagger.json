@@ -70,6 +70,16 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/stewardAgent"
+            }
+          }
+        ],
         "tags": [
           "Admin"
         ]
@@ -98,6 +108,14 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/stewardAgent"
+            }
           }
         ],
         "tags": [
@@ -158,6 +176,14 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/stewardPublicDIDRequest"
+            }
           }
         ],
         "tags": [
@@ -348,6 +374,16 @@
             }
           }
         },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/stewardSchema"
+            }
+          }
+        ],
         "tags": [
           "Admin"
         ]
@@ -434,6 +470,14 @@
             "in": "path",
             "required": true,
             "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/stewardSchema"
+            }
           }
         ],
         "tags": [
@@ -598,6 +642,20 @@
           "items": {
             "$ref": "#/definitions/stewardSchema"
           }
+        }
+      }
+    },
+    "stewardPublicDIDRequest": {
+      "type": "object",
+      "properties": {
+        "agent_id": {
+          "type": "string"
+        },
+        "did": {
+          "type": "string"
+        },
+        "verkey": {
+          "type": "string"
         }
       }
     },

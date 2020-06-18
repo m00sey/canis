@@ -214,8 +214,8 @@ func (r *Steward) ListAgent(_ context.Context, req *api.ListAgentRequest) (*api.
 		out.Agents[i] = &api.Agent{
 			Id:                  Agent.ID,
 			Name:                Agent.Name,
-			AssignedSchemaId:    "",
-			EndorsableSchemaIds: nil,
+			AssignedSchemaId:    Agent.AssignedSchemaId,
+			EndorsableSchemaIds: Agent.EndorsableSchemaIds,
 		}
 	}
 

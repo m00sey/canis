@@ -151,6 +151,7 @@ service Admin {
     rpc CreateSchema (CreateSchemaRequest) returns (CreateSchemaResponse) {
         option (google.api.http) = {
             post: "/schema"
+            body: "schema"
         };
     }
     rpc ListSchema (ListSchemaRequest) returns (ListSchemaResponse) {
@@ -171,12 +172,14 @@ service Admin {
     rpc UpdateSchema (UpdateSchemaRequest) returns (UpdateSchemaResponse) {
         option (google.api.http) = {
             post: "/schema/{schema.id}"
+            body: "schema"
         };
     }
 
     rpc CreateAgent (CreateAgentRequest) returns (CreateAgentResponse) {
         option (google.api.http) = {
             post: "/agents"
+            body: "agent"
         };
     }
     rpc ListAgent (ListAgentRequest) returns (ListAgentResponse) {
@@ -197,6 +200,7 @@ service Admin {
     rpc UpdateAgent (UpdateAgentRequest) returns (UpdateAgentResponse) {
         option (google.api.http) = {
             post: "/agents/{agent.id}"
+            body: "agent"
         };
 
     }
@@ -213,6 +217,7 @@ service Admin {
     rpc RegisterPublicDID (PublicDIDRequest) returns (PublicDIDResponse) {
         option (google.api.http) = {
             post: "/agents/{agent_id}/register"
+            body: "*"
         };
     }
     rpc GetInvitationForAgent (AgentInvitiationRequest) returns (AgentInivitationResponse) {
