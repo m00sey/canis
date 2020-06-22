@@ -1,3 +1,5 @@
+![Build](https://github.com/scoir/canis/workflows/Build/badge.svg)
+
 # CANIS
 
 Canis is an extensible credentialing platform providing a configurable, easy to use environment for issuing and verifying credentials that conform with decentralized 

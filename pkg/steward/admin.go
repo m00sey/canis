@@ -1,0 +1,314 @@
+package steward
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"log"
+	"net/http"
+
+	"github.com/grpc-ecosystem/grpc-gateway/runtime"
+	"github.com/pkg/errors"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
+	"github.com/scoir/canis/pkg/datastore"
+	"github.com/scoir/canis/pkg/static"
+	"github.com/scoir/canis/pkg/steward/api"
+)
+
+func (r *Steward) RegisterGRPCGateway(mux *runtime.ServeMux, endpoint string, opts ...grpc.DialOption) {
+	err := api.RegisterAdminHandlerFromEndpoint(context.Background(), mux, endpoint, opts)
+	if err != nil {
+		log.Println("unable to register admin gateway", err)
+	}
+	//TODO:  have to figure out how to register web notifier
+	//r.registerWebNotifier(mux)
+}
+
+func (r *Steward) RegisterGRPCHandler(server *grpc.Server) {
+	api.RegisterAdminServer(server, r)
+}
+
+func (r *Steward) APISpec() (http.HandlerFunc, error) {
+	return static.ServeHTTP, nil
+}
+
+func (r *Steward) CreateSchema(_ context.Context, req *api.CreateSchemaRequest) (*api.CreateSchemaResponse, error) {
+	s := &datastore.Schema{
+		ID:      req.Schema.Id,
+		Name:    req.Schema.Name,
+		Version: req.Schema.Version,
+	}
+
+	if s.ID == "" || s.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "name and id are required fields")
+	}
+
+	s.Attributes = make([]*datastore.Attribute, len(req.Schema.Attributes))
+	for i, attr := range req.Schema.Attributes {
+		s.Attributes[i] = &datastore.Attribute{
+			Name: attr.Name,
+			Type: int32(attr.Type),
+		}
+	}
+
+	_, err := r.store.GetSchema(s.ID)
+	if err == nil {
+		return nil, status.Error(codes.AlreadyExists, fmt.Sprintf("schema with id %s already exists", req.Schema.Id))
+	}
+
+	id, err := r.store.InsertSchema(s)
+	if err != nil {
+		return nil, status.Error(codes.Internal, errors.Wrapf(err, "failed to create schema %s", req.Schema.Id).Error())
+	}
+
+	return &api.CreateSchemaResponse{
+		Id: id,
+	}, nil
+}
+
+func (r *Steward) ListSchema(_ context.Context, req *api.ListSchemaRequest) (*api.ListSchemaResponse, error) {
+	critter := &datastore.SchemaCriteria{
+		Start:    int(req.Start),
+		PageSize: int(req.PageSize),
+		Name:     req.Name,
+	}
+
+	results, err := r.store.ListSchema(critter)
+	if err != nil {
+		return nil, status.Error(codes.Internal, errors.Wrapf(err, "unable to list schema").Error())
+	}
+
+	out := &api.ListSchemaResponse{
+		Count:  int64(results.Count),
+		Schema: make([]*api.Schema, len(results.Schema)),
+	}
+
+	for i, schema := range results.Schema {
+		out.Schema[i] = &api.Schema{
+			Id:         schema.ID,
+			Name:       schema.Name,
+			Version:    schema.Version,
+			Attributes: make([]*api.Attribute, len(schema.Attributes)),
+		}
+
+		for x, attribute := range schema.Attributes {
+			out.Schema[i].Attributes[x] = &api.Attribute{
+				Name: attribute.Name,
+				Type: api.Attribute_Type(attribute.Type),
+			}
+		}
+	}
+
+	return out, nil
+}
+
+func (r *Steward) GetSchema(_ context.Context, req *api.GetSchemaRequest) (*api.GetSchemaResponse, error) {
+	schema, err := r.store.GetSchema(req.Id)
+	if err != nil {
+		return nil, status.Error(codes.Internal, errors.Wrapf(err, "unable to get schema").Error())
+	}
+
+	out := &api.GetSchemaResponse{}
+
+	out.Schema = &api.Schema{
+		Id:         schema.ID,
+		Name:       schema.Name,
+		Version:    schema.Version,
+		Attributes: make([]*api.Attribute, len(schema.Attributes)),
+	}
+
+	for x, attribute := range schema.Attributes {
+		out.Schema.Attributes[x] = &api.Attribute{
+			Name: attribute.Name,
+			Type: api.Attribute_Type(attribute.Type),
+		}
+	}
+
+	return out, nil
+}
+
+func (r *Steward) DeleteSchema(_ context.Context, req *api.DeleteSchemaRequest) (*api.DeleteSchemaResponse, error) {
+	err := r.store.DeleteSchema(req.Id)
+	if err != nil {
+		return nil, status.Error(codes.Internal, errors.Wrapf(err, "failed to delete schema %s", req.Id).Error())
+	}
+
+	return &api.DeleteSchemaResponse{}, nil
+}
+
+func (r *Steward) UpdateSchema(_ context.Context, req *api.UpdateSchemaRequest) (*api.UpdateSchemaResponse, error) {
+	if req.Schema.Id == "" || req.Schema.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "name and id are required fields")
+	}
+
+	s, err := r.store.GetSchema(req.Schema.Id)
+	if err != nil {
+		return nil, status.Error(codes.AlreadyExists, fmt.Sprintf("schema with id %s already exists", req.Schema.Id))
+	}
+
+	s.Name = req.Schema.Name
+	s.Version = req.Schema.Version
+	s.Attributes = make([]*datastore.Attribute, len(req.Schema.Attributes))
+	for i, attr := range req.Schema.Attributes {
+		s.Attributes[i] = &datastore.Attribute{
+			Name: attr.Name,
+			Type: int32(attr.Type),
+		}
+	}
+
+	err = r.store.UpdateSchema(s)
+	if err != nil {
+		return nil, status.Error(codes.Internal, errors.Wrapf(err, "failed to create schema %s", req.Schema.Id).Error())
+	}
+
+	return &api.UpdateSchemaResponse{}, nil
+}
+
+func (r *Steward) CreateAgent(_ context.Context, req *api.CreateAgentRequest) (*api.CreateAgentResponse, error) {
+	a := &datastore.Agent{
+		ID:                  req.Agent.Id,
+		Name:                req.Agent.Name,
+		AssignedSchemaId:    req.Agent.AssignedSchemaId,
+		EndorsableSchemaIds: req.Agent.EndorsableSchemaIds,
+	}
+
+	if a.ID == "" || a.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "name and id are required fields")
+	}
+	_, err := r.store.GetAgent(a.ID)
+	if err == nil {
+		return nil, status.Error(codes.AlreadyExists, fmt.Sprintf("agent with id %s already exists", req.Agent.Id))
+	}
+
+	id, err := r.store.InsertAgent(a)
+	if err != nil {
+		return nil, status.Error(codes.Internal, errors.Wrapf(err, "failed to create agent %s", req.Agent.Id).Error())
+	}
+
+	return &api.CreateAgentResponse{
+		Id: id,
+	}, nil
+}
+
+func (r *Steward) ListAgent(_ context.Context, req *api.ListAgentRequest) (*api.ListAgentResponse, error) {
+	critter := &datastore.AgentCriteria{
+		Start:    int(req.Start),
+		PageSize: int(req.PageSize),
+		Name:     req.Name,
+	}
+
+	results, err := r.store.ListAgent(critter)
+	if err != nil {
+		return nil, status.Error(codes.Internal, errors.Wrapf(err, "unable to list agent").Error())
+	}
+
+	out := &api.ListAgentResponse{
+		Count:  int64(results.Count),
+		Agents: make([]*api.Agent, len(results.Agents)),
+	}
+
+	for i, Agent := range results.Agents {
+		out.Agents[i] = &api.Agent{
+			Id:                  Agent.ID,
+			Name:                Agent.Name,
+			AssignedSchemaId:    Agent.AssignedSchemaId,
+			EndorsableSchemaIds: Agent.EndorsableSchemaIds,
+		}
+	}
+
+	return out, nil
+}
+
+func (r *Steward) GetAgent(_ context.Context, req *api.GetAgentRequest) (*api.GetAgentResponse, error) {
+	Agent, err := r.store.GetAgent(req.Id)
+	if err != nil {
+		return nil, status.Error(codes.Internal, errors.Wrapf(err, "unable to get agent").Error())
+	}
+
+	out := &api.GetAgentResponse{}
+
+	out.Agent = &api.Agent{
+		Id:                  Agent.ID,
+		Name:                Agent.Name,
+		AssignedSchemaId:    Agent.AssignedSchemaId,
+		EndorsableSchemaIds: Agent.EndorsableSchemaIds,
+	}
+
+	return out, nil
+}
+
+func (r *Steward) DeleteAgent(_ context.Context, req *api.DeleteAgentRequest) (*api.DeleteAgentResponse, error) {
+	err := r.store.DeleteAgent(req.Id)
+	if err != nil {
+		return nil, status.Error(codes.Internal, errors.Wrapf(err, "failed to delete agent %s", req.Id).Error())
+	}
+
+	return &api.DeleteAgentResponse{}, nil
+}
+
+func (r *Steward) UpdateAgent(_ context.Context, req *api.UpdateAgentRequest) (*api.UpdateAgentResponse, error) {
+	if req.Agent.Id == "" || req.Agent.Name == "" {
+		return nil, status.Error(codes.InvalidArgument, "name and id are required fields")
+	}
+
+	s, err := r.store.GetAgent(req.Agent.Id)
+	if err != nil {
+		return nil, status.Error(codes.AlreadyExists, fmt.Sprintf("agent with id %s already exists", req.Agent.Id))
+	}
+
+	s.Name = req.Agent.Name
+	s.AssignedSchemaId = req.Agent.AssignedSchemaId
+	s.EndorsableSchemaIds = req.Agent.EndorsableSchemaIds
+
+	err = r.store.UpdateAgent(s)
+	if err != nil {
+		return nil, status.Error(codes.Internal, errors.Wrapf(err, "failed to create agent %s", req.Agent.Id).Error())
+	}
+
+	return &api.UpdateAgentResponse{}, nil
+}
+
+func (r *Steward) LaunchAgent(_ context.Context, _ *api.LaunchAgentRequest) (*api.LaunchAgentResponse, error) {
+	panic("implement me")
+}
+
+func (r *Steward) ShutdownAgent(_ context.Context, _ *api.ShutdownAgentRequest) (*api.ShutdownAgentResponse, error) {
+	panic("implement me")
+}
+
+func (r *Steward) RegisterPublicDID(ctx context.Context, req *api.PublicDIDRequest) (*api.PublicDIDResponse, error) {
+	log.Printf("Registering %s:%s in ledger for agent %s\n", req.Did, req.Verkey, req.AgentId)
+
+	//TODO, this should be done with VDR, not the ledgerBrowser
+	//err := r.ledgerBrowser.RegisterPublicDID(req.Did, req.Verkey, fmt.Sprintf("Agent-%s", req.AgentId), ledger.EndorserRole)
+	//if err != nil {
+	//	return nil, status.Errorf(codes.Internal, "unable to register college with ledger: %v", err)
+	//}
+
+	return &api.PublicDIDResponse{}, nil
+}
+
+func (r *Steward) GetInvitationForAgent(ctx context.Context,
+	req *api.AgentInvitiationRequest) (*api.AgentInivitationResponse, error) {
+
+	agent, err := r.store.GetAgent(req.AgentId)
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, "Error querying high school for invite: (%v)", err)
+	}
+
+	invite, err := r.bouncer.CreateInvitationNotify(agent.Name, r.handleAgentConnection, r.failedConnectionHandler)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "unable to create invitation to high school agent: %v", err)
+	}
+
+	// err = r.storeHighSchool(hs)
+	// if err != nil {
+	// 	return nil, status.Errorf(codes.Internal, "Error saving high school for invite: (%v)", err)
+	// }
+
+	d, _ := json.Marshal(invite)
+	return &api.AgentInivitationResponse{Body: string(d)}, nil
+}
