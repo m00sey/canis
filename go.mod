@@ -15,10 +15,12 @@ require (
 	github.com/grpc-ecosystem/grpc-gateway v1.14.6
 	github.com/hyperledger/aries-framework-go v0.0.0-00010101000000-000000000000
 	github.com/imdario/mergo v0.3.9 // indirect
+	github.com/mitchellh/go-homedir v1.1.0
 	github.com/mwitkow/grpc-proxy v0.0.0-20181017164139-0f1106ef9c76
 	github.com/onsi/ginkgo v1.11.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/rs/cors v1.7.0
+	github.com/spf13/cobra v1.0.0
 	github.com/spf13/viper v1.7.0
 	github.com/stretchr/testify v1.5.1
 	github.com/vektra/mockery v1.1.2 // indirect

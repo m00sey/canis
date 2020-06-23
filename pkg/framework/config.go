@@ -78,7 +78,7 @@ func NewFileConfig() (*Config, error) {
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("/etc/canis/")
 	//maybe
-	viper.AddConfigPath("./k8s/config/local/")
+	viper.AddConfigPath("./config/proc/")
 	err := viper.ReadInConfig()
 
 	if err != nil {
