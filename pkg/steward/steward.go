@@ -13,6 +13,7 @@ import (
 	"github.com/scoir/canis/pkg/datastore"
 	ndid "github.com/scoir/canis/pkg/didexchange"
 	"github.com/scoir/canis/pkg/framework"
+	"github.com/scoir/canis/pkg/runtime"
 	"github.com/scoir/canis/pkg/schema"
 )
 
@@ -26,6 +27,7 @@ type Steward struct {
 	credcl    *issuecredential.Client
 	notifier  *webnotifier.WebNotifier
 	store     datastore.Store
+	exec      runtime.Executor
 	publicDID *datastore.DID
 }
 
@@ -43,6 +45,13 @@ func New(ctx api.Provider, conf *framework.Config, sc *schema.Client) (*Steward,
 	}
 
 	r.store = store
+
+	exec, err := conf.Executor()
+	if err != nil {
+		return nil, errors.Wrap(err, "unable to access runtime executor")
+	}
+
+	r.exec = exec
 
 	r.didcl, err = conf.GetDIDClient()
 	if err != nil {

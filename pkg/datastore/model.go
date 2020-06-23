@@ -22,6 +22,15 @@ type AgentList struct {
 	Agents []*Agent
 }
 
+type StatusType string
+
+var (
+	Starting   StatusType = "STARTING"
+	Running    StatusType = "RUNNING"
+	Error      StatusType = "ERROR"
+	Terminated StatusType = "TERMINATED"
+)
+
 type Agent struct {
 	ID                  string
 	Name                string
@@ -30,6 +39,8 @@ type Agent struct {
 	ConnectionState     string
 	DID                 string
 	EndorsableSchemaIds []string
+	Status              StatusType
+	PID                 string
 }
 
 type SchemaCriteria struct {
