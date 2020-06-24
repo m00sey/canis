@@ -1,3 +1,4 @@
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://raw.githubusercontent.com/scoir/canis/master/LICENSE)
 ![Build](https://github.com/scoir/canis/workflows/Build/badge.svg)
 
 # CANIS
