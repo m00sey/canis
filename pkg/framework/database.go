@@ -14,39 +14,6 @@ import (
 	"github.com/scoir/canis/pkg/datastore/mongodb"
 )
 
-type DatabaseProvider func(name string) *mongo.Database
-
-func NewDatabase(conf *Config) (DatabaseProvider, error) {
-
-	mongoClient, err := getClient(conf)
-	if err != nil {
-		return nil, err
-	}
-
-	return func(name string) *mongo.Database {
-		return mongoClient.Database(name)
-	}, nil
-
-}
-
-func getClient(conf *Config) (*mongo.Client, error) {
-	var err error
-	tM := reflect.TypeOf(bson.M{})
-	reg := bson.NewRegistryBuilder().RegisterTypeMapEntry(bsontype.EmbeddedDocument, tM).Build()
-	clientOpts := options.Client().SetRegistry(reg).ApplyURI(conf.Mongo.URL)
-
-	mongoClient, err := mongo.NewClient(clientOpts)
-	if err != nil {
-		return nil, errors.Wrap(err, "error creating mongo client")
-	}
-	err = mongoClient.Connect(context.Background())
-	if err != nil {
-		return nil, errors.Wrap(err, "error connecting to mongo")
-	}
-
-	return mongoClient, err
-}
-
 func (r *Config) Datastore() (datastore.Store, error) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
@@ -76,4 +43,22 @@ func (r *Config) loadMongo() (datastore.Store, error) {
 
 func (r *Config) loadPostgres() (datastore.Store, error) {
 	return nil, errors.New("not implemented")
+}
+
+func getClient(conf *Config) (*mongo.Client, error) {
+	var err error
+	tM := reflect.TypeOf(bson.M{})
+	reg := bson.NewRegistryBuilder().RegisterTypeMapEntry(bsontype.EmbeddedDocument, tM).Build()
+	clientOpts := options.Client().SetRegistry(reg).ApplyURI(conf.Mongo.URL)
+
+	mongoClient, err := mongo.NewClient(clientOpts)
+	if err != nil {
+		return nil, errors.Wrap(err, "error creating mongo client")
+	}
+	err = mongoClient.Connect(context.Background())
+	if err != nil {
+		return nil, errors.Wrap(err, "error connecting to mongo")
+	}
+
+	return mongoClient, err
 }

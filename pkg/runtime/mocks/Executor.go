@@ -40,6 +40,11 @@ func (_m *Executor) AgentStatus(pID string) (runtime.Process, error) {
 	return r0, r1
 }
 
+// Describe provides a mock function with given fields:
+func (_m *Executor) Describe() {
+	_m.Called()
+}
+
 // LaunchAgent provides a mock function with given fields: agent
 func (_m *Executor) LaunchAgent(agent *datastore.Agent) (string, error) {
 	ret := _m.Called(agent)
@@ -59,6 +64,11 @@ func (_m *Executor) LaunchAgent(agent *datastore.Agent) (string, error) {
 	}
 
 	return r0, r1
+}
+
+// PS provides a mock function with given fields:
+func (_m *Executor) PS() {
+	_m.Called()
 }
 
 // ShutdownAgent provides a mock function with given fields: pID

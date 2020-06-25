@@ -29,4 +29,6 @@ type Executor interface {
 	ShutdownAgent(pID string) error
 	WatchAgent(pID string) (Watcher, error)
 	StreamAgentLogs(pID string) (io.ReadCloser, error)
+	PS()
+	Describe()
 }

@@ -23,9 +23,13 @@ import (
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
+
+	"github.com/scoir/canis/pkg/framework"
 )
 
 var cfgFile string
+
+var config *framework.Config
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -80,7 +84,16 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+	if err := viper.ReadInConfig(); err != nil {
+		fmt.Println("unable to read config:", viper.ConfigFileUsed(), err)
+		os.Exit(1)
 	}
+
+	config = &framework.Config{}
+	err := viper.Unmarshal(config)
+	if err != nil {
+		fmt.Println("failed to unmarshal config", err)
+		os.Exit(1)
+	}
+
 }

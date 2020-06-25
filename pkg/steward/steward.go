@@ -90,7 +90,7 @@ func (r *Steward) bootstrap() error {
 	did, err := r.store.GetPublicDID()
 	if err != nil {
 		//TODO: This should be done with external tool!
-		//log.Println("No public DID, creating one")
+		//log.Println("No public PeerDID, creating one")
 		//
 		//did, verkey, err := r.vdr.CreateNym()
 		//if err != nil {
@@ -100,10 +100,10 @@ func (r *Steward) bootstrap() error {
 		//log.Printf("Going to use %s as did and %s as verkey\n", did, verkey)
 		//err = r.ledgerBrowser.RegisterPublicDID(did, verkey, ScoirStewardAlias, ledger.StewardRole)
 		//if err != nil {
-		//	return errors.Wrap(err, "error registering public DID in bootstrap")
+		//	return errors.Wrap(err, "error registering public PeerDID in bootstrap")
 		//}
 		//
-		//log.Println("DID registered on Ledger as Steward and set as public with agent")
+		//log.Println("PeerDID registered on Ledger as Steward and set as public with agent")
 	} else {
 		r.publicDID = did
 		log.Printf("Public did is %s with verkey %s\n", r.publicDID.DID, r.publicDID.Verkey)

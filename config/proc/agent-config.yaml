@@ -1,4 +1,4 @@
-dbpath: /data/steward
+dbpath: /data/agent
 database: mongo
 mongo:
    url: "mongodb://127.0.0.1:27017"
@@ -6,13 +6,13 @@ mongo:
 
 wsinbound:
   host: 0.0.0.0
-  port: 7777
+  port: 8887
 grpc:
   host: 0.0.0.0
-  port: 7778
+  port: 8888
 grpcBridge:
   host: 0.0.0.0
-  port: 7779
+  port: 8889
 
 
 runtime: kubernetes

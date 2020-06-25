@@ -37,10 +37,11 @@ type Agent struct {
 	AssignedSchemaId    string
 	ConnectionID        string
 	ConnectionState     string
-	DID                 string
+	PeerDID             string
 	EndorsableSchemaIds []string
 	Status              StatusType
 	PID                 string
+	PublicDID           bool
 }
 
 type SchemaCriteria struct {

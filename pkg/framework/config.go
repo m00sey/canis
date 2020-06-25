@@ -10,9 +10,11 @@ import (
 	"github.com/hyperledger/aries-framework-go/pkg/client/issuecredential"
 	"github.com/hyperledger/aries-framework-go/pkg/client/route"
 	"github.com/hyperledger/aries-framework-go/pkg/framework/context"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 
 	"github.com/scoir/canis/pkg/datastore"
+	"github.com/scoir/canis/pkg/runtime"
 )
 
 var configFileName string
@@ -23,33 +25,32 @@ func init() {
 }
 
 type Config struct {
-	LedgerURL     string   `yaml:"ledgerURL"redis:"-"`
-	ID            string   `yaml:"ID"`
-	SCID          string   `yaml:"SCID"`
-	Name          string   `yaml:"Name"`
-	DID           string   `redis:"DID"`
-	Verkey        string   `redis:"Verkey"`
-	Confirmed     bool     `redis:"Confirmed"`
-	KubeConfig    string   `yaml:"kubeConfig"`
-	Namespace     string   `yaml:"namespace"`
-	FQDN          string   `yaml:"FQDN"`
-	ImageRegistry string   `yaml:"imageRegistry"`
-	DockerTag     string   `yaml:"dockerTag"`
-	DBPath        string   `yaml:"dbpath"`
-	Endpoint      string   `yaml:"endpoint"`
-	VDR           Endpoint `yaml:"vdr"`
-	WSInbound     Endpoint `yaml:"wsinbound" redis:"-"`
-	GRPC          Endpoint `yaml:"grpc" redis:"-"`
-	Agency        Endpoint `yaml:"agency" redis:"-"`
-	Steward       Endpoint `yaml:"steward" redis:"-"`
-	GRPCBridge    Endpoint `yaml:"grpcBridge" redis:"-"`
+	LedgerURL  string   `yaml:"ledgerURL"redis:"-"`
+	ID         string   `yaml:"ID"`
+	SCID       string   `yaml:"SCID"`
+	Name       string   `yaml:"Name"`
+	DID        string   `redis:"PeerDID"`
+	Verkey     string   `redis:"Verkey"`
+	Confirmed  bool     `redis:"Confirmed"`
+	DBPath     string   `yaml:"dbpath"`
+	Endpoint   string   `yaml:"endpoint"`
+	VDR        Endpoint `yaml:"vdr"`
+	WSInbound  Endpoint `yaml:"wsinbound"`
+	GRPC       Endpoint `yaml:"grpc"`
+	Agency     Endpoint `yaml:"agency"`
+	Steward    Endpoint `yaml:"steward"`
+	GRPCBridge Endpoint `yaml:"grpcBridge"`
 
 	Database string `yaml:"database"`
 	Mongo    *Mongo `yaml:"mongo"`
 
+	Runtime    string      `yaml:"runtime"`
+	Kubernetes *Kubernetes `yaml:"kubernetes"`
+
 	lock sync.Mutex
 
 	ds      datastore.Store
+	exec    runtime.Executor
 	ctx     *context.Provider
 	didcl   *didexchange.Client
 	credcl  *issuecredential.Client
@@ -59,6 +60,13 @@ type Config struct {
 type Mongo struct {
 	URL      string `yaml:"url"`
 	Database string `yaml:"database"`
+}
+
+type Kubernetes struct {
+	KubeConfig    string `yaml:"kubeConfig"`
+	Namespace     string `yaml:"namespace"`
+	FQDN          string `yaml:"FQDN"`
+	ImageRegistry string `yaml:"imageRegistry"`
 }
 
 type Endpoint struct {
@@ -73,7 +81,7 @@ func (r Endpoint) Address() string {
 //NewFileConfig constructs the agent config from filesystem
 //noinspection GoUnusedExportedFunction
 func NewFileConfig() (*Config, error) {
-	flag.Parse()
+	pflag.Parse()
 	viper.SetConfigName(configFileName)
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("/etc/canis/")

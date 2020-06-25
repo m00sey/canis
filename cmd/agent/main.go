@@ -4,11 +4,18 @@ import (
 	"log"
 
 	arieslog "github.com/hyperledger/aries-framework-go/pkg/common/log"
+	"github.com/spf13/pflag"
 
+	"github.com/scoir/canis/pkg/agent"
 	"github.com/scoir/canis/pkg/controller"
 	"github.com/scoir/canis/pkg/framework"
-	"github.com/scoir/canis/pkg/steward"
 )
+
+var agentID string
+
+func init() {
+	pflag.StringVar(&agentID, "id", "", "The unique ID for this Agent")
+}
 
 func main() {
 	arieslog.SetLevel("aries-framework/out-of-band/service", arieslog.CRITICAL)
@@ -20,10 +27,9 @@ func main() {
 	}
 
 	ctx := conf.GetAriesContext()
-
-	agent, err := steward.InitializeAgent(ctx, conf)
+	theAgent, err := agent.InitializeAgent(agentID, conf)
 	if err != nil {
-		log.Fatalln("error initializing steward agent", err)
+		log.Fatalln("error initializing agent", err)
 	}
 
 	runner, err := controller.New(
@@ -32,7 +38,7 @@ func main() {
 		conf.GRPC.Port,
 		conf.GRPCBridge.Host,
 		conf.GRPCBridge.Port,
-		agent)
+		theAgent)
 
 	if err != nil {
 		log.Fatalln("unable to start steward", err)

@@ -2,7 +2,7 @@
 
 CANIS_ROOT=$(abspath .)
 
-all: clean tools wire steward
+all: clean tools wire steward agent
 
 commit: cover build
 
@@ -40,8 +40,16 @@ steward-docker: bin/steward
 	@echo "Building steward agent docker image"
 	@docker build -f ./docker/steward/Dockerfile -t scoir/steward:latest .
 
+build-agent: bin/agent
 build-agency: bin/agency
 build-router: bin/router
+
+wire-agent:
+	cd pkg/agent && wire
+
+agent: bin/agent
+bin/agent: wire-agent
+	cd cmd/agent && go build -o $(CANIS_ROOT)/bin/agent
 
 wire-agency:
 	cd pkg/agency && wire
