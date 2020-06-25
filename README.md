@@ -1,7 +1,8 @@
+![Canis Major](/static/CanisMajor.jpg?raw=true "Canis Major")
+
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://raw.githubusercontent.com/scoir/canis/master/LICENSE)
 ![Build](https://github.com/scoir/canis/workflows/Build/badge.svg)
 
-![Canis Major](/static/CanisMajor.jpg?raw=true "Canis Major")
 # CANIS
 
 Canis is an extensible credentialing platform providing a configurable, easy to use environment for issuing and verifying credentials that conform with decentralized 
