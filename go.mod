@@ -25,7 +25,7 @@ require (
 	go.mongodb.org/mongo-driver v1.3.4
 	goji.io v2.0.2+incompatible
 	golang.org/x/net v0.0.0-20200602114024-627f9648deb9
-	golang.org/x/tools v0.0.0-20200624225443-88f3c62a19ff // indirect
+	golang.org/x/tools v0.0.0-20200626171337-aa94e735be7f // indirect
 	google.golang.org/genproto v0.0.0-20200526211855-cb27e3aa2013
 	google.golang.org/grpc v1.29.1
 	google.golang.org/protobuf v1.25.0
