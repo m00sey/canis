@@ -17,6 +17,10 @@ identity standards including [W3C decentralized identifiers](https://w3c.github.
 - [**Development**](#development)
 - [**License**](#license)
 
+## Architecture
+
+![Architecture](/static/V1.png?raw=true "Canis Architecture")
+
 ## Why Canis?
 
 Issuing digital credentials requires an institution or organization to have an agent to represent its interest in the digital landscape.
