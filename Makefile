@@ -84,7 +84,7 @@ run: bin/steward
 	@bin/scoir-agent
 
 test: clean tools
-	go test ./pkg/...
+	@./scripts/test.sh
 
 cover:
 	go test -coverprofile cover.out ./pkg/...

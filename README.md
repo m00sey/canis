@@ -2,6 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://raw.githubusercontent.com/scoir/canis/master/LICENSE)
 ![Build](https://github.com/scoir/canis/workflows/Build/badge.svg)
+[![codecov](https://codecov.io/gh/scoir/canis/branch/master/graph/badge.svg?token=dXh8Imy2PO)](https://codecov.io/gh/scoir/canis)
 
 # CANIS
 
