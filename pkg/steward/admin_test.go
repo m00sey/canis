@@ -476,7 +476,7 @@ func (suite *AdminTestSuite) TestLaunchAgentWait() {
 	suite.Store.On("GetAgent", "123").Return(agent, nil)
 	suite.Exec.On("LaunchAgent", agent).Return("ABC", nil)
 	suite.Store.On("UpdateAgent", agent).Return(nil)
-	suite.Exec.On("WatchAgent", "ABC").Return(&watch{ch: ch}, nil)
+	suite.Exec.On("Watch", "ABC").Return(&watch{ch: ch}, nil)
 	ch <- runtime.AgentEvent{
 		RuntimeContext: &process{status: datastore.Running},
 	}

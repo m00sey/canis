@@ -1,5 +1,5 @@
 /*
-Copyright © 2020 NAME HERE <EMAIL ADDRESS>
+Copyright © 2020 Scoir, Inc <phil@scoir.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -18,30 +18,27 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
+	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v2"
 
-	homedir "github.com/mitchellh/go-homedir"
-	"github.com/spf13/viper"
-
-	"github.com/scoir/canis/pkg/framework"
+	"github.com/scoir/canis/pkg/steward"
 )
 
 var cfgFile string
 
-var config *framework.Config
+var config *steward.Config
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "canis",
-	Short: "The canis CLI controls the Canis Credential Hub.",
-	Long: `The canis CLI controls the Canis Credential Hub.
+	Use:   "steward",
+	Short: "The canis steward orchestration service.",
+	Long: `"The canis steward orchestration service.".
 
  Find more information at: https://canis.io/docs/reference/canis/overview`,
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
 		fmt.Println(err)
@@ -65,10 +62,7 @@ func init() {
 
 // initConfig reads in config file and ENV variables if set.
 func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
+	if cfgFile == "" {
 		// Find home directory.
 		home, err := homedir.Dir()
 		if err != nil {
@@ -76,21 +70,18 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".canis" (without extension).
-		viper.AddConfigPath(home)
-		viper.SetConfigName(".canis")
+		cfgFile = strings.Join([]string{home, ".canis"}, string(os.PathSeparator))
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
-
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err != nil {
-		fmt.Println("unable to read config:", viper.ConfigFileUsed(), err)
+	f, err := os.Open(cfgFile)
+	if err != nil {
+		fmt.Println("unable to read config:", cfgFile, err)
 		os.Exit(1)
 	}
 
-	config = &framework.Config{}
-	err := viper.Unmarshal(config)
+	config = steward.NewConfig()
+	err = yaml.NewDecoder(f).Decode(config)
 	if err != nil {
 		fmt.Println("failed to unmarshal config", err)
 		os.Exit(1)

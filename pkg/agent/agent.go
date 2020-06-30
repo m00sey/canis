@@ -11,7 +11,6 @@ import (
 	"github.com/pkg/errors"
 
 	ndid "github.com/scoir/canis/pkg/didexchange"
-	"github.com/scoir/canis/pkg/framework"
 	"github.com/scoir/canis/pkg/steward/api"
 	"github.com/scoir/canis/pkg/util"
 )
@@ -23,7 +22,7 @@ type Agent struct {
 	bouncer        *ndid.Bouncer
 }
 
-func NewAgent(agentID string, conf *framework.Config) (*Agent, error) {
+func NewAgent(agentID string, conf *Config) (*Agent, error) {
 	r := &Agent{
 		agentID: agentID,
 	}

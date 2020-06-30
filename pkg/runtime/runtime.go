@@ -24,11 +24,13 @@ type AgentEvent struct {
 
 //go:generate mockery -name=Executor
 type Executor interface {
+	LaunchSteward([]byte) (string, error)
 	LaunchAgent(agent *datastore.Agent) (string, error)
 	AgentStatus(pID string) (Process, error)
 	ShutdownAgent(pID string) error
-	WatchAgent(pID string) (Watcher, error)
-	StreamAgentLogs(pID string) (io.ReadCloser, error)
+
+	Watch(pID string) (Watcher, error)
+	StreamLogs(pID string) (io.ReadCloser, error)
 	PS()
 	Describe()
 }

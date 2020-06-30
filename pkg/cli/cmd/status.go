@@ -13,12 +13,24 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-package main
+package cmd
 
 import (
-	"github.com/scoir/canis/pkg/cmd"
+	"fmt"
+
+	"github.com/spf13/cobra"
 )
 
-func main() {
-	cmd.Execute()
+// startCmd represents the start command
+var statusCmd = &cobra.Command{
+	Use:   "status",
+	Short: "Gets the status of a running canis credential hub",
+	Long:  `Gets the status of a running canis credential hub`,
+	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("status called")
+	},
+}
+
+func init() {
+	rootCmd.AddCommand(statusCmd)
 }

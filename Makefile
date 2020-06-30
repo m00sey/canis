@@ -2,7 +2,7 @@
 
 CANIS_ROOT=$(abspath .)
 
-all: clean tools wire steward agent
+all: clean tools steward agent
 
 commit: cover build
 
@@ -10,14 +10,8 @@ commit: cover build
 clean:
 	rm -f bin/*
 
-wire: wire-steward
-
-wire-steward:
-	@. ./canis.sh; cd pkg/steward && wire
-
 tools:
 	go get bou.ke/staticfiles
-	go get github.com/google/wire/cmd/wire
 	go get github.com/vektra/mockery/.../
 	go get golang.org/x/tools/cmd/cover
 	go get -u github.com/golang/protobuf/protoc-gen-go
@@ -30,39 +24,35 @@ build: bin/steward bin/agency bin/router
 build-steward: bin/steward
 
 steward: bin/steward
-bin/steward: steward-pb swagger_pack wire-steward
+bin/steward: steward-pb swagger_pack
 	cd cmd/steward && go build -o $(CANIS_ROOT)/bin/steward
 
 .PHONY: steward-docker agency-docker router-docker
 package: steward-docker agency-docker router-docker
 
 steward-docker: bin/steward
-	@echo "Building steward agent docker image"
+	@echo "Building steward docker image"
 	@docker build -f ./docker/steward/Dockerfile -t scoir/steward:latest .
+
+agent-docker: bin/agent
+	@echo "Building agent docker image"
+	@docker build -f ./docker/agent/Dockerfile -t scoir/agent:latest .
+
 
 build-agent: bin/agent
 build-agency: bin/agency
 build-router: bin/router
 
-wire-agent:
-	cd pkg/agent && wire
-
 agent: bin/agent
-bin/agent: wire-agent
+bin/agent:
 	cd cmd/agent && go build -o $(CANIS_ROOT)/bin/agent
 
-wire-agency:
-	cd pkg/agency && wire
-
 agency: bin/agency bin/router
-bin/agency: wire-agency
+bin/agency:
 	cd cmd/agency && go build -o $(CANIS_ROOT)/bin/agency
 
-wire-router:
-	cd pkg/router && wire
-
 router: bin/router
-bin/router: wire-router
+bin/router:
 	cd cmd/router && go build -o $(CANIS_ROOT)/bin/router
 
 agency-docker: bin/agency

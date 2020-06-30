@@ -85,7 +85,7 @@ func (_m *Executor) ShutdownAgent(pID string) error {
 	return r0
 }
 
-// StreamAgentLogs provides a mock function with given fields: pID
+// StreamLogs provides a mock function with given fields: pID
 func (_m *Executor) StreamAgentLogs(pID string) (io.ReadCloser, error) {
 	ret := _m.Called(pID)
 
@@ -108,7 +108,7 @@ func (_m *Executor) StreamAgentLogs(pID string) (io.ReadCloser, error) {
 	return r0, r1
 }
 
-// WatchAgent provides a mock function with given fields: pID
+// Watch provides a mock function with given fields: pID
 func (_m *Executor) WatchAgent(pID string) (runtime.Watcher, error) {
 	ret := _m.Called(pID)
 

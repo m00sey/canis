@@ -12,7 +12,6 @@ import (
 	"github.com/scoir/canis/pkg/credential"
 	"github.com/scoir/canis/pkg/datastore"
 	ndid "github.com/scoir/canis/pkg/didexchange"
-	"github.com/scoir/canis/pkg/framework"
 	"github.com/scoir/canis/pkg/runtime"
 	"github.com/scoir/canis/pkg/schema"
 )
@@ -31,7 +30,7 @@ type Steward struct {
 	publicDID *datastore.DID
 }
 
-func New(ctx api.Provider, conf *framework.Config, sc *schema.Client) (*Steward, error) {
+func New(ctx api.Provider, conf *Config, sc *schema.Client) (*Steward, error) {
 
 	var err error
 	r := &Steward{
@@ -39,14 +38,14 @@ func New(ctx api.Provider, conf *framework.Config, sc *schema.Client) (*Steward,
 		schemacl: sc,
 	}
 
-	store, err := conf.Datastore()
+	store, err := conf.Datastore.Datastore()
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to access datastore")
 	}
 
 	r.store = store
 
-	exec, err := conf.Executor()
+	exec, err := conf.Execution.Executor()
 	if err != nil {
 		return nil, errors.Wrap(err, "unable to access runtime executor")
 	}

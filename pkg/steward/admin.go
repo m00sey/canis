@@ -293,7 +293,7 @@ func (r *Steward) LaunchAgent(_ context.Context, req *api.LaunchAgentRequest) (*
 		Status: api.Agent_STARTING,
 	}
 	if req.Wait {
-		w, err := r.exec.WatchAgent(agent.PID)
+		w, err := r.exec.Watch(agent.PID)
 		if err != nil {
 			log.Println("error watching agent")
 		}

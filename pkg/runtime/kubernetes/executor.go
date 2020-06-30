@@ -9,12 +9,26 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 
 	"github.com/scoir/canis/pkg/datastore"
-	"github.com/scoir/canis/pkg/framework"
 	"github.com/scoir/canis/pkg/framework/context"
 	"github.com/scoir/canis/pkg/runtime"
 )
 
+type Config struct {
+	KubeConfig    string `yaml:"kubeConfig"`
+	Namespace     string `yaml:"namespace"`
+	FQDN          string `yaml:"FQDN"`
+	ImageRegistry string `yaml:"imageRegistry"`
+}
+
 type Executor struct {
+}
+
+func New(conf *Config) runtime.Executor {
+	return &Executor{}
+}
+
+func (e Executor) LaunchSteward(conf []byte) (string, error) {
+	panic("implement me")
 }
 
 func (e Executor) LaunchAgent(agent *datastore.Agent) (string, error) {
@@ -29,11 +43,11 @@ func (e Executor) ShutdownAgent(pID string) error {
 	panic("implement me")
 }
 
-func (e Executor) WatchAgent(pID string) (runtime.Watcher, error) {
+func (e Executor) Watch(pID string) (runtime.Watcher, error) {
 	panic("implement me")
 }
 
-func (e Executor) StreamAgentLogs(pID string) (io.ReadCloser, error) {
+func (e Executor) StreamLogs(pID string) (io.ReadCloser, error) {
 	panic("implement me")
 }
 
@@ -61,6 +75,14 @@ func GetClientSet(kubeconfig, namespace string) *context.Clientset {
 	return &context.Clientset{Clientset: cs, Namespace: namespace}
 }
 
-func GetClientSetWithConfig(config *framework.Kubernetes) *context.Clientset {
-	return GetClientSet(config.KubeConfig, config.Namespace)
+func GetClientSetWithConfig(c *Config) *context.Clientset {
+	return GetClientSet(c.KubeConfig, c.Namespace)
+}
+
+func (e Executor) PS() {
+	panic("implement me")
+}
+
+func (e Executor) Describe() {
+	panic("implement me")
 }

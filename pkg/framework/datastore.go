@@ -3,6 +3,7 @@ package framework
 import (
 	"context"
 	"reflect"
+	"sync"
 
 	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
@@ -14,7 +15,20 @@ import (
 	"github.com/scoir/canis/pkg/datastore/mongodb"
 )
 
-func (r *Config) Datastore() (datastore.Store, error) {
+type DatastoreConfig struct {
+	Database string `mapstructure:"database"`
+	Mongo    *Mongo `mapstructure:"mongo"`
+
+	lock sync.Mutex
+	ds   datastore.Store
+}
+
+type Mongo struct {
+	URL      string `mapstructure:"url"`
+	Database string `mapstructure:"database"`
+}
+
+func (r *DatastoreConfig) Datastore() (datastore.Store, error) {
 	r.lock.Lock()
 	defer r.lock.Unlock()
 	if r.ds != nil {
@@ -32,7 +46,7 @@ func (r *Config) Datastore() (datastore.Store, error) {
 	return r.ds, errors.Wrap(err, "unable to get datastore from config")
 }
 
-func (r *Config) loadMongo() (datastore.Store, error) {
+func (r *DatastoreConfig) loadMongo() (datastore.Store, error) {
 	mongoClient, err := getClient(r)
 	if err != nil {
 		return nil, err
@@ -41,11 +55,11 @@ func (r *Config) loadMongo() (datastore.Store, error) {
 	return mongodb.NewStore(mongoClient.Database(r.Mongo.Database)), nil
 }
 
-func (r *Config) loadPostgres() (datastore.Store, error) {
+func (r *DatastoreConfig) loadPostgres() (datastore.Store, error) {
 	return nil, errors.New("not implemented")
 }
 
-func getClient(conf *Config) (*mongo.Client, error) {
+func getClient(conf *DatastoreConfig) (*mongo.Client, error) {
 	var err error
 	tM := reflect.TypeOf(bson.M{})
 	reg := bson.NewRegistryBuilder().RegisterTypeMapEntry(bsontype.EmbeddedDocument, tM).Build()
